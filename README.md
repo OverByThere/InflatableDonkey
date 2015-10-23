@@ -29,7 +29,7 @@ AppleId/ password.
 ```
 ~/InflatableDonkey-master/target $ java -jar InflatableDonkey.jar elvis@lives.com uhhurhur
 ```
-DsPrsID/mmeAuthToken. Preferable for repeated runs as rapid AppleId/ password authentication may trip anti-flooding controls.
+DsPrsID/mmeAuthToken. Preferable for consecutive runs as repeated appleId/ password authentication over short periods may trip anti-flooding/ security controls.
 ```
 ~/InflatableDonkey-master/target $ java -jar InflatableDonkey.jar 1234567890:AQAAAABWJVgBHQvCSr4qPXsjQN9M9dQw9K7w/sB=
 ```
@@ -81,14 +81,20 @@ Postulated steps and current status are as follows:
   5. Backup list. Functional.
   6. Snapshot list. Functional.
   7. Manifest list. Functional.
-  8. Retrieve assets. Unknown.
-  9. Asset tokens. Unknown.
+  8. Retrieve list of assets. Unknown -> now functional.
+  9. Retrieve asset tokens. Unknown.
   10. AuthorizeGet. Known if unchanged from iOS8.
   11. ChunkServer.FileGroups retrieval. Known if unchanged from iOS8.
   12. Assemble assets/ files. Known if unchanged from iOS8.
   13. Decrypt files. Known if unchanged from iOS8.
 
-At present steps 8 and 9 remain undiscovered. If you have any additional information, we would love hear it! Please open a ticket and pour your heart out.
+For further information please refer to the comments/ code in [Main](https://github.com/horrorho/InflatableDonkey/blob/master/src/main/java/com/github/horrorho/inflatabledonkey/Main.java). Running the tool will detail the client/ server responses for each step, including headers/ protobufs. You can play with [logback.xml](https://github.com/horrorho/InflatableDonkey/blob/master/src/main/resources/logback.xml) and adjust the Apache HttpClient header/ wire logging levels.
+
+
+At present steps 8 and 9 remain undiscovered. If you have any additional information, we would love hear it! Please open a ticket and pour your heart out. However if you would prefer to remain under the radar, then email me directly.
+
+**Update**, 23 October 2015. Ok! I figured out step 8 and have updated the tool. The casualty being the cloud_kit.proto file, which is a complete mess. At some point it will need refactoring, cleaning and more idiomatic names applied.
+
 
 ### Backups!
 The elucidation of client-server calls has been greatly inhibited by the lack of iCloud server to iOS9 device restoration logs. If you are able to assist in this non-trivial process then again, we would love to hear from you. Seriously, we would REALLY love to hear from you.
