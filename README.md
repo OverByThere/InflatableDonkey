@@ -22,21 +22,37 @@ The executable Jar is located at /target/InflatableDonkey.jar
 ```
 ~/InflatableDonkey-master/target $ java -jar InflatableDonkey.jar --help
 usage: InflatableDonkey [OPTION]... (<token> | <appleid> <password>)
-    --help    Display this help and exit.
-    --token   Display the dsPrsID:mmeAuthToken and exit.
+ -d,--device <int>     Device, default: 0 = first device.
+ -s,--snapshot <int>   Snapshot, default: 0 = first snapshot.
+ -m,--manifest <int>   Manifest, default: 0 = first manifest.
+    --help             Display this help and exit.
+    --token            Display the dsPrsID:mmeAuthToken and exit.
 ```
+
 AppleId/ password.
 ```
 ~/InflatableDonkey-master/target $ java -jar InflatableDonkey.jar elvis@lives.com uhhurhur
 ```
+
 DsPrsID/mmeAuthToken. Preferable for consecutive runs as repeated appleId/ password authentication over short periods may trip anti-flooding/ security controls.
 ```
 ~/InflatableDonkey-master/target $ java -jar InflatableDonkey.jar 1234567890:AQAAAABWJVgBHQvCSr4qPXsjQN9M9dQw9K7w/sB=
 ```
+
 Print DsPrsID/mmeAuthToken and exit.
 ```
 ~/InflatableDonkey-master/target $ java -jar InflatableDonkey.jar elvis@lives.com uhhurhur --token
 ```
+
+Selection.
+For simplicity the tools operates in a linear manner. It will select the first device, first snapshot, first manifest and the first non-empty file.
+The device, snapshot and manifest index can be specified, with 0 representing the first item.
+
+Select the first device, second snapshot, tenth manifest, first non-empty file.
+```
+~/InflatableDonkey-master/target $ java -jar InflatableDonkey.jar elvis@lives.com uhhurhur --device 0 --snapshot 1 --manifest 9
+```
+
 Output snippet.
 ```
 11:56:54.954 [main] DEBUG org.apache.http.headers - http-outgoing-1 << HTTP/1.1 200 OK
@@ -64,12 +80,12 @@ status {
 m201Response {
   body {
     result {
-      op {
-        item {
+      recordZoneID {
+        zoneName {
           value: "mbksync"
-          type: 6
+          encoding: 6
         }
-        ckUserID {
+        ownerName {
 ```
 
 ### iOS9 iCloud retrieval progress
@@ -82,11 +98,11 @@ Postulated steps and current status are as follows:
   6. Snapshot list. Functional.
   7. Manifest list. Functional.
   8. Retrieve list of assets. Unknown -> now functional.
-  9. Retrieve asset tokens. Unknown.
-  10. AuthorizeGet. Known if unchanged from iOS8.
+  9. Retrieve asset tokens. Unknown -> now functional except encryptedAttributes remains undecrypted.
+  10. AuthorizeGet. Known if unchanged from iOS8. -> altered but now functional.
   11. ChunkServer.FileGroups retrieval. Known if unchanged from iOS8.
   12. Assemble assets/ files. Known if unchanged from iOS8.
-  13. Decrypt files. Known if unchanged from iOS8.
+  13. Decrypt files. Known if unchanged from iOS8 -> altered, at present unknown/ broken.
 
 For further information please refer to the comments/ code in [Main](https://github.com/horrorho/InflatableDonkey/blob/master/src/main/java/com/github/horrorho/inflatabledonkey/Main.java). Running the tool will detail the client/ server responses for each step, including headers/ protobufs. You can play with [logback.xml](https://github.com/horrorho/InflatableDonkey/blob/master/src/main/resources/logback.xml) and adjust the Apache HttpClient header/ wire logging levels.
 
@@ -95,6 +111,7 @@ At present steps 8 and 9 remain undiscovered. If you have any additional informa
 
 **Update**, 23 October 2015. Ok! I figured out step 8 and have updated the tool. The casualty being the cloud_kit.proto file, which is a complete mess. At some point it will need refactoring, cleaning and more idiomatic names applied.
 
+**Update**, 24 October 2015. Good news and bad news! Good, steps 9 and 10 are functional. Bad, step 9 returns [encryptedAttributes](https://github.com/horrorho/InflatableDonkey/blob/master/src/main/java/com/github/horrorho/inflatabledonkey/Main.java#L683) for files. Without this we do not know what the files represent, nor can we decrypt them if needed. Unless this is solved, it's potentially a deal breaker. It's possible we may be missing additional client-server responses. If anyone has any ideas I would be keen to hear them!
 
 ### Backups!
 The elucidation of client-server calls has been greatly inhibited by the lack of iCloud server to iOS9 device restoration logs. If you are able to assist in this non-trivial process then again, we would love to hear from you. Seriously, we would REALLY love to hear from you.

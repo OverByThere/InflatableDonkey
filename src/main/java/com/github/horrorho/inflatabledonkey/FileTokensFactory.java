@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License
  *
  * Copyright 2015 Ahseya.
@@ -21,51 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.horrorho.inflatabledonkey.args;
+package com.github.horrorho.inflatabledonkey;
 
-import java.time.format.DateTimeFormatter;
+import com.github.horrorho.inflatabledonkey.protocol.CloudKit;
+import java.util.Collection;
+import java.util.function.Function;
 import net.jcip.annotations.Immutable;
 
 /**
- * Configuration properties.
+ * FileTokens factory.
  *
  * @author Ahseya
  */
 @Immutable
-public enum Property {
+public final class FileTokensFactory implements Function<Collection<CloudKit.Asset>, CloudKit.FileTokens> {
 
-    APP_NAME("InflatableDonkey"),
-    ARGS_HELP,
-    ARGS_TOKEN,
-    ARGS_VERSION,
-    AUTHENTICATION_APPLEID,
-    AUTHENTICATION_PASSWORD,
-    AUTHENTICATION_TOKEN, 
-    PROTOC_PATH("protoc"),
-    SELECT_DEVICE_INDEX("0"),
-    SELECT_SNAPSHOT_INDEX("0"),
-    SELECT_MANIFEST_INDEX("0"),
-    PROPERTIES_RESOURCE("/inflatable_donkey.properties");
-
-    public static DateTimeFormatter commandLineInputDateTimeFormatter() {
-        return DateTimeFormatter.ISO_DATE;
+    public static FileTokensFactory instance() {
+        return instance;
     }
 
-    public static DateTimeFormatter outputDateTimeFormatter() {
-        return DateTimeFormatter.RFC_1123_DATE_TIME;
+    private static final FileTokensFactory instance = new FileTokensFactory();
+
+    private FileTokensFactory() {
     }
 
-    private final String defaultValue;
-
-    private Property() {
-        this(null);
+    @Override
+    public CloudKit.FileTokens apply(Collection<CloudKit.Asset> assets) {
+        return assets.stream()
+                .map(this::fileToken)
+                .collect(
+                        CloudKit.FileTokens::newBuilder,
+                        CloudKit.FileTokens.Builder::addFileTokens,
+                        (a, b) -> a.addAllFileTokens(b.getFileTokensList()))
+                .build();
     }
 
-    private Property(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public String defaultValue() {
-        return defaultValue;
+    CloudKit.FileToken fileToken(CloudKit.Asset asset) {
+        return CloudKit.FileToken.newBuilder()
+                .setFileChecksum(asset.getFileChecksum())
+                .setFileSignature(asset.getFileSignature())
+                .setToken(asset.getToken())
+                .build();
     }
 }
